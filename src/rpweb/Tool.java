@@ -37,4 +37,6 @@ public class Tool {
         temp.add(new JLabel(name));
         return temp;
     }
+    
+    public void remind(Reminder r, DrawingManager d){}
 }

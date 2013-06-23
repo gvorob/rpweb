@@ -53,29 +53,32 @@ public class User implements ActionListener{
     
     public byte[] receive()
     {
-        
-        byte[] temp = new byte[1];
         try {
             if((input.available()==0))
                 return null;
-            int tempIn = input.read();
-            temp[0] = (byte)tempIn;
-            while(true)
-            {
-                if((input.available()==0))
-                    break;
-                temp = Arrays.copyOf(temp, temp.length+1);
-                tempIn = input.read();
-                temp[temp.length - 1] = (byte)tempIn;
-            }
+            byte[] temp = new byte[input.available()];
+            input.read(temp);
+            return temp;
         } catch (IOException ex) {
             Logger.getLogger(RPServer.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return temp;
+        return null;
     }
 
     public void actionPerformed(ActionEvent e) {
         isPressed = userSelectButton.isSelected();
     }
     
+    public void removeSelf()
+    {
+        try {
+            sock.close();
+            input.close();
+            output.close();
+        } catch (IOException ex) {
+            Logger.getLogger(User.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        userSelectButton.getParent().remove(userSelectButton);
+        userSelectButton = null;
+    }
 }

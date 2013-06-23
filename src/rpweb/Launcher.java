@@ -56,7 +56,8 @@ public class Launcher extends MouseInputAdapter implements WindowListener, Actio
     public Launcher()
     {
         loader = new JFrame("Launcher");
-        inputIP = new JTextField("Enter IP here.",12);
+        //inputIP = new JTextField("Enter IP here.",12);    DEBUG,PUT IN LATER
+        inputIP = new JTextField("localhost",12);  //TAKE THIS OUT
         inputPort = new JTextField("Enter port (optional)", 10);
         inputPort.setMaximumSize(new Dimension(1000,20));        
         inputPort.setVisible(false);
@@ -117,7 +118,8 @@ public class Launcher extends MouseInputAdapter implements WindowListener, Actio
         loader.setVisible(true);
         while(true)
         {
-            System.out.print("");
+            try{Thread.sleep(10);}
+            catch (InterruptedException e){}
             if(isSubmitted)
             {
                 if(isHost)

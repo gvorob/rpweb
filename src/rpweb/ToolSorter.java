@@ -4,8 +4,6 @@
  */
 package rpweb;
 
-import java.awt.image.BufferedImage;
-
 /**
  *
  * @author George
@@ -38,6 +36,19 @@ public class ToolSorter {
             
             BrushTool.processIn(tempIn,d);
             return BrushTool.BYTES_IN_TRANSFER; 
+        }
+        if(input[i] == byteUtils.TEMP_BYTE)
+        {
+            i++;
+            byte[] tempIn = new byte[TempBrushTool.BYTES_IN_TRANSFER-1];
+            for (int j = 0;j<TempBrushTool.BYTES_IN_TRANSFER-1;j++)
+            {
+                tempIn[j] = input[i];
+                i++;
+            }
+            
+            TempBrushTool.processIn(tempIn,d);
+            return TempBrushTool.BYTES_IN_TRANSFER; 
         }
         System.out.println("TOOL FLAG "+input[i]+" NOT RECOGNIZED");
         return -1;

@@ -35,13 +35,15 @@ public class RPWeb{
             l.close();
             System.out.println("Starting server...");
             RPServer rpserv = new RPServer();
-            rpserv.initHosting(beginHosting(l.hostInfo(),rpserv));
+            rpserv.initHosting(makeConnectionListener(l.hostInfo(),rpserv));
+            l = null;
         }
         else
         {
             l.close();
             RPClient rpclient = new RPClient();
             rpclient.startClient(sock);
+            l = null;
         }
         System.exit(0);
     }
@@ -75,7 +77,7 @@ public class RPWeb{
         }
     }
     
-    public Thread beginHosting(ServerSocket servSock, RPServer serv)
+    public Thread makeConnectionListener(ServerSocket servSock, RPServer serv)
     {
         Thread t = new Thread(new Hoster(servSock, serv));
         t.start();

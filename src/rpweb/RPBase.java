@@ -42,7 +42,7 @@ import javax.swing.text.StyledDocument;
  *
  * @author George
  */
-public class RPClient extends KeyAdapter implements WindowListener, MouseInputListener{
+public abstract class RPBase extends KeyAdapter implements WindowListener, MouseInputListener{
     
     private JFrame screen;
         private JPanel content;
@@ -65,7 +65,7 @@ public class RPClient extends KeyAdapter implements WindowListener, MouseInputLi
     
     private Random rand;
     
-    public RPClient() 
+    public RPBase() 
     {
         drawPanel = new JPanel();
         drawPanel.setLayout(new BoxLayout(drawPanel, BoxLayout.Y_AXIS));
@@ -74,7 +74,7 @@ public class RPClient extends KeyAdapter implements WindowListener, MouseInputLi
         subToolInfo = new JPanel();
         toolInfo.add(subToolInfo);
         rand = new Random();
-        screen = new JFrame("Chat Client");
+        screen = new JFrame("Temporary Base");
         drawing = new Canvas();
         drawing.setMaximumSize(new Dimension(400,400));
         drawing.setSize(new Dimension(400,400));
@@ -135,7 +135,7 @@ public class RPClient extends KeyAdapter implements WindowListener, MouseInputLi
         } 
         catch (IOException ex) 
         {
-            Logger.getLogger(RPClient.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RPBase.class.getName()).log(Level.SEVERE, null, ex);
         }
         while(true)
         {
@@ -218,7 +218,7 @@ public class RPClient extends KeyAdapter implements WindowListener, MouseInputLi
         try {
             output.write(b);
         } catch (IOException ex) {
-            Logger.getLogger(RPClient.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RPBase.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -265,7 +265,7 @@ public class RPClient extends KeyAdapter implements WindowListener, MouseInputLi
         try {
             doc.insertString(doc.getLength(), s + "\n", attr);
         } catch (BadLocationException ex) {
-            Logger.getLogger(RPClient.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(RPBase.class.getName()).log(Level.SEVERE, null, ex);
         }
         chatLog.setForeground(Color.white);
     }

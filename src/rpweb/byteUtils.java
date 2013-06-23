@@ -16,6 +16,7 @@ public class byteUtils {
     public static final byte TOOL_MASK = (byte)0xE0;
     public static final byte BRUSH_BYTE = (byte)0xE0;
     public static final byte ERASER_BYTE = (byte)0xE1;
+    public static final byte TEMP_BYTE = (byte)0xE2;
     public static final byte TEXT_BYTE = (byte)0x80;
     public static final byte TEXT_END_BYTE = (byte) 0x81;
     
@@ -24,6 +25,11 @@ public class byteUtils {
         String temp = getByteString(b);
         if(temp!=null)
         System.out.println(temp);
+    }
+    
+    public static int unsignedByte(byte b)
+    {
+        return (int)b & 0xff;
     }
     
     public static String getByteString(byte[] b)
@@ -51,9 +57,9 @@ public class byteUtils {
         }
         int temp;
         int a1 = (((int)b[index+3] << 24)   &0xff000000);
-        int a2 = (((int)b[index+2] << 16)    &0x00ff0000);
-        int a3 = (((int)b[index+1] << 8)      &0x0000ff00);
-        int a4 = (((int)b[index])             &0x000000ff);
+        int a2 = (((int)b[index+2] << 16)   &0x00ff0000);
+        int a3 = (((int)b[index+1] << 8)    &0x0000ff00);
+        int a4 = (((int)b[index])           &0x000000ff);
         
         temp = a1|a2|a3|a4 ;
         return temp;

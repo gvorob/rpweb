@@ -31,6 +31,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.event.MouseInputListener;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
 import javax.swing.text.MutableAttributeSet;
 import javax.swing.text.SimpleAttributeSet;
 import javax.swing.text.StyleConstants;
@@ -88,6 +90,7 @@ public class RPServer extends KeyAdapter implements MouseInputListener,WindowLis
         MutableAttributeSet attr = new SimpleAttributeSet();
         StyleConstants.setForeground(attr, Color.white);
         chatLog.setBackground(Color.black);
+        chatLog.setForeground(Color.white);
         chatLog.setCharacterAttributes(attr, true);
         logScroller = new JScrollPane(chatLog);
         inputBox = new JTextField(40);
@@ -132,8 +135,10 @@ public class RPServer extends KeyAdapter implements MouseInputListener,WindowLis
         hostThread = t;
         while(true)
         {
-            if(drawMan.isRedraw());
+            if(drawMan.isRedraw())
+            {
                 screen.validate();
+            }
             try {
                 Thread.sleep(5);
             } catch (InterruptedException ex) {
@@ -179,16 +184,22 @@ public class RPServer extends KeyAdapter implements MouseInputListener,WindowLis
                     processText(byteUtils.ByteTobyte(tempIn.toArray(new Byte[0])),user);
                     i++;
                 }
-                if((pack[i]&byteUtils.TOOL_MASK)==byteUtils.TOOL_BYTE)
+                else if((pack[i]&byteUtils.TOOL_MASK)==byteUtils.TOOL_BYTE)
                 {
-                    int temp = drawMan.processIn(pack, i,user);
-                    if(temp == -1)
+                    
+                    int length = ToolSorter.processIn(pack, i,-1,drawMan);
+                    if(length == -1)
                     {
                         i = pack.length;
                     }
-                    else i+= temp;
+                    else 
+                    {
+                        byte[] tempPacket = new byte[length];
+                        System.arraycopy(pack, i, tempPacket, 0, length);
+                        sendToAllExcept(tempPacket, user);
+                        i+= length;
+                    }
                 }
-                
             }
         }
         catch(Exception e)
@@ -244,20 +255,25 @@ public class RPServer extends KeyAdapter implements MouseInputListener,WindowLis
         send(temp);
     }
     
-    public void sendToAll(byte[] b)
+    public void sendToAllExcept(byte[] b, int except)
     {
         for(int i = 0;i<users.length;i++){
-            users[i].send(b);
+            if(i!=except)
+            {users[i].send(b);}
         }
     }
     
+    public void sendToAll(byte[] b)
+    {sendToAllExcept(b,-1);}
+    
     public byte[] receive(int index)
     {
-        if(index>=users.length||index<0)
+        if(index >= users.length || index<0)
         {
             System.out.println("Selected user does not exist");
             return null;
         }
+        if(users[index] == null) return null;
         byte[] temp = users[index].receive();
         //System.out.println(temp==null);
         return temp;
@@ -265,7 +281,12 @@ public class RPServer extends KeyAdapter implements MouseInputListener,WindowLis
     
     public void printToChat(String s)
     {
-        chatLog.setText(chatLog.getText()+"\n"+s);
+        Document doc = chatLog.getDocument();
+        try {
+            doc.insertString(doc.getLength(), s + "\n", null);
+        } catch (BadLocationException ex) {
+            Logger.getLogger(RPServer.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
     
     public void windowOpened(WindowEvent e) {}
@@ -280,8 +301,15 @@ public class RPServer extends KeyAdapter implements MouseInputListener,WindowLis
     {
         if(e.getKeyCode()==KeyEvent.VK_ENTER)
         {
-            sendText(inputBox.getText().getBytes());
-            printToChat("Sent: " + inputBox.getText());
+            String text = inputBox.getText();
+            if(text.length()>0 && text.charAt(0) == '/')
+            {
+            }
+            else
+            {
+                sendText(text.getBytes());
+                printToChat("Sent: " + inputBox.getText());
+            }
             inputBox.setText("");
         }
     }

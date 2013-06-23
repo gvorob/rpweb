@@ -4,8 +4,10 @@
  */
 package rpweb;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -15,10 +17,10 @@ import java.awt.image.BufferedImage;
  * @author George
  */
 public class EraseTool extends Tool{
-    public static final int BYTES_IN_TRANSFER = 13;
+    public static final int BYTES_IN_TRANSFER = 21;
     
     public int radius;
-    public Point mousePos;
+    public Point mousePos, last;
     public boolean lClick;
     //public BufferedImage b;
     
@@ -44,33 +46,44 @@ public class EraseTool extends Tool{
     {
         if(lClick)
         {
-            Graphics g = d.getBaseGraphics();
-            g.fillOval(mousePos.x-radius, mousePos.y-radius, radius*2, radius*2);
-            return sendData(mousePos.x, mousePos.y);
+            if(last == null)last = mousePos;
+            Graphics2D g = d.getBaseGraphics2D();
+            g.setStroke(new BasicStroke(radius*2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+            g.drawLine(mousePos.x-radius, mousePos.y-radius, last.x-radius,last.y-radius);
+            byte[] temp = sendData(mousePos.x, mousePos.y, last.x, last.y);
+            last = mousePos;
+            return temp;
         }
+        last = null;
         return new byte[0];
     }
     
     public static void processIn(byte[] input, DrawingManager d)
     {
-        Graphics g = d.getBaseGraphics();
+        Graphics2D g = d.getBaseGraphics2D();
         int x = byteUtils.byteToInt(input,0);
         int y = byteUtils.byteToInt(input,4);
-        int rad = byteUtils.byteToInt(input,8);
-        
-        g.fillOval(x-rad, y-rad, rad*2, rad*2);
+        int lx = byteUtils.byteToInt(input,8);
+        int ly = byteUtils.byteToInt(input,12);        
+        int rad = byteUtils.byteToInt(input,16);
+        g.setStroke(new BasicStroke(rad*2, BasicStroke.CAP_ROUND, BasicStroke.JOIN_ROUND));
+        g.drawLine(x-rad, y-rad, lx-rad,ly-rad);
     }
     
-    public byte[] sendData(int x, int y)
+    public byte[] sendData(int x, int y, int lx, int ly)
     { 
         byte[] temp1 = byteUtils.getBytes(x);
         byte[] temp2 = byteUtils.getBytes(y);
-        byte[] temp3 = byteUtils.getBytes(radius);
+        byte[] temp3 = byteUtils.getBytes(lx);
+        byte[] temp4 = byteUtils.getBytes(ly);
+        byte[] temp5 = byteUtils.getBytes(radius);
         byte[] temp = new byte[BYTES_IN_TRANSFER];
         temp[0] = byteUtils.ERASER_BYTE;
         System.arraycopy(temp1, 0, temp, 1, 4);
         System.arraycopy(temp2, 0, temp, 5, 4);
         System.arraycopy(temp3, 0, temp, 9, 4);
+        System.arraycopy(temp4, 0, temp, 13, 4);
+        System.arraycopy(temp5, 0, temp, 17, 4);
         return temp;
     }
 }
